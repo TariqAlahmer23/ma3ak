@@ -4,6 +4,11 @@
   publish = "dist"
 
 [[redirects]]
+  from = "/"
+  to = "/home"
+  status = 302
+
+[[redirects]]
   from = "/*"
   to = "/index.html"
   status = 200
