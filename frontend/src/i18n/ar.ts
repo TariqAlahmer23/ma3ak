@@ -107,6 +107,8 @@ export const ar = {
   liveSessions: 'جلسات حية',
   mapSetupRequired: 'إعداد الخريطة مطلوب',
   addMapToken: 'أضف VITE_MAPBOX_ACCESS_TOKEN في البيئة لتفعيل الخريطة الحية.',
+  mapLoadFailed: 'فشل تحميل الخريطة',
+  mapLoadHelp: 'الرمز موجود، لكن Mapbox لم يستطع تحميل النمط أو البلاطات. في الإنتاج يكون السبب غالباً أن الرمز مقيّد بـ localhost، أو أن نطاق Netlify غير مسموح في Mapbox، أو أن النشر يحتاج إعادة بناء بعد إضافة متغير البيئة.',
   livePointsAround: '{{count}} نقطة حية حولك',
   tapToCheckIn: 'اضغط أي مكان على الخريطة لتسجيل الحضور',
   peopleLiveAround: 'أشخاص وجلسات ومجموعات نشطة حولك',

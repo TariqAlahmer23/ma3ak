@@ -111,6 +111,8 @@ export const en = {
   liveSessions: 'Live sessions',
   mapSetupRequired: 'Map setup required',
   addMapToken: 'Add VITE_MAPBOX_ACCESS_TOKEN in your environment to enable the live map.',
+  mapLoadFailed: 'Map load failed',
+  mapLoadHelp: 'The token exists, but Mapbox could not load the style or tiles. In production this usually means the token is restricted to localhost, the deployed domain is not allowed in Mapbox, or Netlify needs a fresh redeploy after the env change.',
   livePointsAround: '{{count}} live points around you',
   tapToCheckIn: 'Tap any place on the map to check in',
   peopleLiveAround: 'People, sessions, groups live around you',

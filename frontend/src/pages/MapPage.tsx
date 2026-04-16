@@ -121,6 +121,7 @@ export function MapPage() {
 
   const [entities, setEntities] = useState<LiveMapEntity[]>(liveMapEntities);
   const [selectedCard, setSelectedCard] = useState<SelectedCard | null>(null);
+  const [mapError, setMapError] = useState<string | null>(null);
 
   const [checkInOpen, setCheckInOpen] = useState(false);
   const [pickMode, setPickMode] = useState(false);
@@ -267,6 +268,12 @@ export function MapPage() {
       rerender();
     };
 
+    const handleMapError = (event: { error?: Error }) => {
+      const message = event.error?.message?.trim();
+      setMapError(message || 'Mapbox failed to load the map style or tiles.');
+      if (message) console.error('Mapbox error:', message);
+    };
+
     const handleMapClick = (event: mapboxgl.MapMouseEvent) => {
       if (!pickModeRef.current) return;
       setPickedPoint({
@@ -280,9 +287,11 @@ export function MapPage() {
 
     map.on('style.load', applySceneStyling);
     map.on('load', () => {
+      setMapError(null);
       map.easeTo({ center, duration: 900 });
       applySceneStyling();
     });
+    map.on('error', handleMapError);
     map.on('zoomend', rerender);
     map.on('moveend', rerender);
     map.on('click', handleMapClick);
@@ -291,6 +300,7 @@ export function MapPage() {
       markersRef.current.forEach((marker) => marker.remove());
       markersRef.current.clear();
       map.off('style.load', applySceneStyling);
+      map.off('error', handleMapError);
       map.off('zoomend', rerender);
       map.off('moveend', rerender);
       map.off('click', handleMapClick);
@@ -383,6 +393,13 @@ export function MapPage() {
                 {t('addMapToken')}
               </p>
             </div>
+          </div>
+        ) : null}
+        {token && mapError ? (
+          <div className="absolute inset-x-4 top-48 z-30 mx-auto max-w-lg rounded-2xl border border-amber-400/30 bg-[#0b1020]/90 p-4 text-sm text-white shadow-2xl backdrop-blur-xl md:top-28">
+            <p className="text-xs uppercase tracking-[0.16em] text-amber-300">{t('mapLoadFailed')}</p>
+            <p className="mt-2 text-white/90">{t('mapLoadHelp')}</p>
+            <p className="mt-2 break-words rounded-xl bg-white/5 px-3 py-2 font-mono text-xs text-amber-100">{mapError}</p>
           </div>
         ) : null}
 
