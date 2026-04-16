@@ -23,7 +23,7 @@ export function MobileBottomNav() {
   const { t } = useTranslation();
 
   return (
-    <nav className="fixed inset-x-3 bottom-5 z-40 overflow-hidden rounded-2xl border border-white/10 bg-[linear-gradient(90deg,#0b1020_0%,#111827_52%,#161d2e_100%)] p-2 shadow-velvet backdrop-blur-xl md:hidden">
+    <nav className="fixed inset-x-3 bottom-5 z-40 overflow-hidden rounded-2xl border border-line/60 bg-[linear-gradient(90deg,rgba(255,255,255,.96)_0%,rgba(248,250,252,.93)_52%,rgba(241,245,249,.94)_100%)] p-2 shadow-velvet backdrop-blur-xl dark:border-white/10 dark:bg-[linear-gradient(90deg,#0b1020_0%,#111827_52%,#161d2e_100%)] md:hidden">
       {bubbles.map((b, i) => (
         <motion.span
           key={`${b.left}-${i}`}

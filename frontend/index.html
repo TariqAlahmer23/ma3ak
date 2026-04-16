@@ -7,6 +7,18 @@
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <link rel="manifest" href="/manifest.webmanifest" />
     <title>MA3AK</title>
+    <script>
+      (function () {
+        try {
+          var saved = localStorage.getItem('ma3ak_theme');
+          var theme = saved === 'light' || saved === 'dark' ? saved : 'dark';
+          if (theme === 'dark') document.documentElement.classList.add('dark');
+          document.documentElement.style.colorScheme = theme;
+          var meta = document.querySelector('meta[name="theme-color"]');
+          if (meta) meta.setAttribute('content', theme === 'dark' ? '#0b1020' : '#f5f7fb');
+        } catch (_) {}
+      })();
+    </script>
   </head>
   <body>
     <div id="root"></div>

@@ -4,6 +4,10 @@ import path from 'node:path';
 
 export default defineConfig({
   plugins: [react()],
+  optimizeDeps: {
+    include: ['mapbox-gl'],
+    needsInterop: ['mapbox-gl']
+  },
   resolve: {
     alias: {
       '@': path.resolve(__dirname, './src')

@@ -10,6 +10,7 @@ import { useAppStore } from '@/store/useAppStore';
 export function AppLayout() {
   const location = useLocation();
   const isLanding = location.pathname === '/landing';
+  const isMap = location.pathname === '/home';
 
   const theme = usePersistedTheme();
   const locale = useLocale();
@@ -17,11 +18,23 @@ export function AppLayout() {
   const setLocale = useAppStore((s) => s.setLocale);
 
   return (
-    <div className="mx-auto min-h-full max-w-7xl px-3 pb-28 pt-4 md:px-6 md:pb-10">
-      {!isLanding ? <div className="mb-6 md:mb-8"><DesktopTopNav /></div> : null}
+    <div
+      className={
+        isMap
+          ? 'relative min-h-screen'
+          : 'mx-auto min-h-full max-w-7xl px-3 pb-28 pt-4 md:px-6 md:pb-10'
+      }
+    >
+      {!isLanding ? (
+        <div className={isMap ? 'pointer-events-none fixed inset-x-3 top-4 z-50 hidden md:block md:inset-x-6' : 'mb-6 md:mb-8'}>
+          <div className={isMap ? 'pointer-events-auto' : ''}>
+            <DesktopTopNav />
+          </div>
+        </div>
+      ) : null}
 
       {!isLanding ? (
-        <header className="premium-card-soft mb-6 flex items-center justify-between rounded-2xl border border-white/10 px-4 py-3 backdrop-blur-xl md:hidden">
+        <header className={`premium-card-soft flex items-center justify-between rounded-2xl border border-white/10 px-4 py-3 backdrop-blur-xl md:hidden ${isMap ? 'fixed inset-x-3 top-4 z-50' : 'mb-6'}`}>
           <div className="flex items-center gap-3">
             <img src="/MA3AK.png" alt="MA3AK logo" className="h-11 w-11 rounded-xl object-cover shadow-sm ring-1 ring-white/10" />
             <div>
@@ -52,7 +65,7 @@ export function AppLayout() {
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: -8 }}
           transition={{ duration: 0.24, ease: 'easeOut' }}
-          className={isLanding ? 'mx-auto max-w-6xl' : 'mx-auto max-w-6xl'}
+          className={isMap ? 'h-screen w-screen' : isLanding ? 'mx-auto max-w-6xl' : 'mx-auto max-w-6xl'}
         >
           <Outlet />
         </motion.main>

@@ -112,6 +112,7 @@ export function MapPage() {
   const navigate = useNavigate();
   const { requireAuth } = useAuthGate();
   const me = useAppStore((s) => s.me);
+  const theme = useAppStore((s) => s.theme);
 
   const mapContainerRef = useRef<HTMLDivElement | null>(null);
   const mapRef = useRef<MapboxMap | null>(null);
@@ -137,7 +138,11 @@ export function MapPage() {
   }, [activity, t]);
 
   const token = import.meta.env.VITE_MAPBOX_ACCESS_TOKEN as string | undefined;
-  const mapStyle = (import.meta.env.VITE_MAPBOX_STYLE_URL as string | undefined) || 'mapbox://styles/mapbox/navigation-night-v1';
+  const mapStyle =
+    (import.meta.env.VITE_MAPBOX_STYLE_URL as string | undefined) ||
+    (theme === 'dark'
+      ? 'mapbox://styles/mapbox/navigation-night-v1'
+      : 'mapbox://styles/mapbox/light-v11');
 
   const buildClusters = useCallback((map: MapboxMap, items: LiveMapEntity[]): Cluster[] => {
     const zoom = map.getZoom();
@@ -252,21 +257,17 @@ export function MapPage() {
 
     const rerender = () => updateMarkers();
 
-    map.on('load', () => {
+    const applySceneStyling = () => {
       map.setFog({
         color: 'rgb(11,16,32)',
         'high-color': 'rgb(17,24,39)',
         'space-color': 'rgb(7,10,20)',
         'horizon-blend': 0.12
       });
-      map.easeTo({ center, duration: 900 });
       rerender();
-    });
+    };
 
-    map.on('zoomend', rerender);
-    map.on('moveend', rerender);
-
-    map.on('click', (event) => {
+    const handleMapClick = (event: mapboxgl.MapMouseEvent) => {
       if (!pickModeRef.current) return;
       setPickedPoint({
         lng: event.lngLat.lng,
@@ -275,15 +276,55 @@ export function MapPage() {
       });
       setPickMode(false);
       setCheckInOpen(true);
+    };
+
+    map.on('style.load', applySceneStyling);
+    map.on('load', () => {
+      map.easeTo({ center, duration: 900 });
+      applySceneStyling();
     });
+    map.on('zoomend', rerender);
+    map.on('moveend', rerender);
+    map.on('click', handleMapClick);
 
     return () => {
       markersRef.current.forEach((marker) => marker.remove());
       markersRef.current.clear();
+      map.off('style.load', applySceneStyling);
+      map.off('zoomend', rerender);
+      map.off('moveend', rerender);
+      map.off('click', handleMapClick);
       map.remove();
       mapRef.current = null;
     };
-  }, [token, mapStyle, updateMarkers]);
+  }, [token, mapStyle, t, updateMarkers]);
+
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!map) return;
+
+    let cancelled = false;
+
+    const applyStyleIfNeeded = () => {
+      if (cancelled) return;
+
+      const styleId = mapStyle.split('/').at(-1) ?? mapStyle;
+      const currentSprite = map.getStyle()?.sprite ?? '';
+      if (currentSprite.includes(styleId)) return;
+
+      map.setStyle(mapStyle);
+    };
+
+    if (map.isStyleLoaded()) {
+      applyStyleIfNeeded();
+    } else {
+      map.once('style.load', applyStyleIfNeeded);
+    }
+
+    return () => {
+      cancelled = true;
+    };
+  }, [mapStyle]);
 
   useEffect(() => {
     pickModeRef.current = pickMode;
@@ -331,28 +372,28 @@ export function MapPage() {
   };
 
   return (
-    <div className="relative pb-28">
-      <section className="premium-card relative h-[calc(100vh-12.5rem)] overflow-hidden rounded-[2rem] md:h-[calc(100vh-11rem)]">
+    <div className="relative h-full w-full overflow-hidden">
+      <section className="relative h-full w-full overflow-hidden">
         <div ref={mapContainerRef} className="h-full w-full" />
         {!token ? (
-          <div className="absolute inset-0 z-30 flex items-center justify-center bg-[#0b1020]/88 p-6 text-center">
+          <div className="absolute inset-0 z-30 flex items-center justify-center bg-bg/88 p-6 text-center">
             <div className="max-w-md space-y-2">
               <p className="text-sm uppercase tracking-[0.16em] text-cyan">{t('mapSetupRequired')}</p>
-              <p className="text-sm text-slate-200">
+              <p className="text-sm text-text">
                 {t('addMapToken')}
               </p>
             </div>
           </div>
         ) : null}
 
-        <div className="pointer-events-none absolute left-4 top-4 z-20 inline-flex items-center gap-2 rounded-full border border-white/15 bg-black/35 px-3 py-1 text-xs text-slate-200 backdrop-blur">
+        <div className="pointer-events-none absolute left-4 top-24 z-20 inline-flex items-center gap-2 rounded-full border border-line/60 bg-surface/80 px-3 py-1 text-xs text-text backdrop-blur dark:border-white/15 dark:bg-black/35 md:top-24">
           <Radio size={13} className="text-rose-400" />
           {mapStatus}
         </div>
 
-        <div className="absolute left-4 right-4 top-16 z-20 md:left-6 md:right-6 md:top-5 md:mx-auto md:max-w-sm">
-          <div className="rounded-2xl border border-white/10 bg-[#111827]/82 px-3 py-2 backdrop-blur-xl">
-            <div className="flex items-center gap-2 text-sm text-slate-200">
+        <div className="absolute left-4 right-4 top-36 z-20 md:left-6 md:right-6 md:top-24 md:mx-auto md:max-w-sm">
+          <div className="rounded-2xl border border-line/60 bg-surface/85 px-3 py-2 backdrop-blur-xl dark:border-white/10 dark:bg-[#111827]/82">
+            <div className="flex items-center gap-2 text-sm text-text">
               <Search size={15} className="text-cyan" />
               <span>{pickMode ? t('tapToCheckIn') : t('peopleLiveAround')}</span>
             </div>
@@ -376,24 +417,24 @@ export function MapPage() {
                 animate={{ y: 0, opacity: 1 }}
                 exit={{ y: 80, opacity: 0 }}
                 transition={{ type: 'spring', stiffness: 280, damping: 26 }}
-                className="absolute inset-x-3 bottom-3 z-30 rounded-2xl border border-white/10 bg-[#111827]/92 p-4 backdrop-blur-xl"
+                className="absolute inset-x-3 bottom-3 z-30 rounded-2xl border border-line/60 bg-surface/92 p-4 backdrop-blur-xl dark:border-white/10 dark:bg-[#111827]/92"
               >
                 <div className="flex items-start justify-between gap-3">
                   <div>
                     <p className="text-xs uppercase tracking-[0.14em] text-cyan">{intentLabel(selectedCard.intent)}</p>
-                    <h2 className="font-heading text-lg text-slate-100">{selectedCard.title}</h2>
+                    <h2 className="font-heading text-lg text-text">{selectedCard.title}</h2>
                   </div>
-                  <span className="rounded-full border border-white/15 bg-white/5 px-2 py-1 text-xs text-slate-200">
+                  <span className="rounded-full border border-line/60 bg-bg/40 px-2 py-1 text-xs text-text dark:border-white/15 dark:bg-white/5">
                     {t('liveLabel')}
                   </span>
                 </div>
 
-                <p className="mt-2 text-sm text-slate-300">{selectedCard.activity}</p>
+                <p className="mt-2 text-sm text-muted">{selectedCard.activity}</p>
 
-                <div className="mt-3 flex items-center justify-between text-xs text-slate-300">
+                <div className="mt-3 flex items-center justify-between text-xs text-muted">
                   <div className="flex -space-x-2">
                     {selectedCard.avatars.slice(0, 4).map((avatar, idx) => (
-                      <img key={`${avatar}-${idx}`} src={avatar} className="h-7 w-7 rounded-full border-2 border-[#111827] object-cover" />
+                      <img key={`${avatar}-${idx}`} src={avatar} className="h-7 w-7 rounded-full border-2 border-surface object-cover" />
                     ))}
                   </div>
                   <span className="inline-flex items-center gap-1"><Users size={13} /> {selectedCard.peopleCount} {t('nearby')}</span>
@@ -420,7 +461,7 @@ export function MapPage() {
             if (!requireAuth('create', undefined, '/home')) return;
             setCheckInOpen(true);
           }}
-          className="group inline-flex items-center gap-2 rounded-full border border-white/15 bg-[#111827]/90 px-4 py-3 text-sm font-semibold text-white shadow-glow backdrop-blur-xl transition hover:-translate-y-0.5 hover:border-cyan/60"
+          className="group inline-flex items-center gap-2 rounded-full border border-line/60 bg-surface/90 px-4 py-3 text-sm font-semibold text-text shadow-glow backdrop-blur-xl transition hover:-translate-y-0.5 hover:border-cyan/60 dark:border-white/15 dark:bg-[#111827]/90 dark:text-white"
         >
           <span className="relative inline-flex h-6 w-6 items-center justify-center rounded-full bg-gradient-to-br from-cyan to-accent text-white">
             <Zap size={13} />
@@ -447,16 +488,16 @@ export function MapPage() {
               animate={{ y: 0 }}
               exit={{ y: '100%' }}
               transition={{ type: 'spring', damping: 24, stiffness: 260 }}
-              className="fixed inset-x-0 bottom-0 z-50 rounded-t-3xl border border-white/10 bg-[#111827] p-5 text-slate-100 shadow-2xl"
+              className="fixed inset-x-0 bottom-0 z-50 rounded-t-3xl border border-line/60 bg-surface p-5 text-text shadow-2xl dark:border-white/10 dark:bg-[#111827] dark:text-slate-100"
             >
               <div className="mx-auto mb-4 h-1.5 w-14 rounded-full bg-slate-500/50" />
               <h3 className="font-heading text-xl">{t('checkInNow')}</h3>
-              <p className="mt-1 text-sm text-slate-300">{t('shareWhere')}</p>
+              <p className="mt-1 text-sm text-muted">{t('shareWhere')}</p>
 
               <div className="mt-4 space-y-3">
                 <div className="premium-card-soft rounded-2xl p-3 text-sm">
                   <p className="text-xs text-muted">{t('place')}</p>
-                  <p className="mt-1 text-slate-100">{pickedPoint?.label ?? t('noLocationSelected')}</p>
+                  <p className="mt-1 text-text">{pickedPoint?.label ?? t('noLocationSelected')}</p>
                 </div>
 
                 <button

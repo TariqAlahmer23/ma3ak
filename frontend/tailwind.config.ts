@@ -6,16 +6,16 @@ export default {
   theme: {
     extend: {
       colors: {
-        bg: 'var(--bg)',
-        surface: 'var(--surface)',
-        text: 'var(--text)',
-        muted: 'var(--muted)',
-        line: 'var(--line)',
-        accent: 'var(--accent)',
-        accentSoft: 'var(--accent-soft)',
-        cyan: 'var(--cyan)',
-        violet: 'var(--violet)',
-        coral: 'var(--coral)'
+        bg: 'rgb(var(--bg) / <alpha-value>)',
+        surface: 'rgb(var(--surface) / <alpha-value>)',
+        text: 'rgb(var(--text) / <alpha-value>)',
+        muted: 'rgb(var(--muted) / <alpha-value>)',
+        line: 'rgb(var(--line) / <alpha-value>)',
+        accent: 'rgb(var(--accent) / <alpha-value>)',
+        accentSoft: 'rgb(var(--accent-soft) / <alpha-value>)',
+        cyan: 'rgb(var(--cyan) / <alpha-value>)',
+        violet: 'rgb(var(--violet) / <alpha-value>)',
+        coral: 'rgb(var(--coral) / <alpha-value>)'
       },
       boxShadow: {
         velvet: '0 26px 60px -26px rgba(2, 8, 23, 0.85)',
