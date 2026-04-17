@@ -3,11 +3,12 @@ import type { PremiumPlan } from '@/types/domain';
 
 export function PremiumPlanCard({ plan }: { plan: PremiumPlan }) {
   const { t } = useTranslation();
+
   return (
     <article
       className={`rounded-3xl border p-5 ${
         plan.highlight
-          ? 'premium-card border-accent/60 bg-gradient-to-b from-accent/15 to-surface shadow-glow'
+          ? 'premium-card border-accent/25 bg-gradient-to-b from-accent/10 to-surface shadow-glow'
           : 'premium-card'
       }`}
     >

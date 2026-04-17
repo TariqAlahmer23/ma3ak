@@ -23,7 +23,7 @@ export function TimeSlotPicker({
             type="button"
             onClick={() => onChange(active ? value.filter((x) => x !== slot) : [...value, slot])}
             className={`rounded-2xl border px-3 py-2 text-sm ${
-              active ? 'border-accent bg-accent/20 text-cyan' : 'premium-card-soft border-white/10 text-text'
+              active ? 'premium-tag border-accent/30 bg-accent/15 text-text shadow-glow' : 'premium-card-soft text-text'
             }`}
           >
             {timeSlotLabel(slot)}

@@ -12,14 +12,14 @@ import { useAppStore } from '@/store/useAppStore';
 import { formatTime } from '@/utils';
 
 const intentColor: Record<string, string> = {
-  study: 'from-cyan/35 to-accent/15',
-  work: 'from-accent/35 to-violet/15',
-  project: 'from-violet/35 to-cyan/15',
-  networking: 'from-coral/30 to-violet/15',
-  outing: 'from-coral/35 to-accent/15',
-  coffee: 'from-coral/35 to-cyan/15',
-  walk: 'from-cyan/35 to-emerald-400/20',
-  meet: 'from-violet/35 to-coral/20'
+  study: 'from-accent/28 to-violet/70',
+  work: 'from-cyan/24 to-violet/60',
+  project: 'from-violet/70 to-coral/70',
+  networking: 'from-cyan/22 to-accent/12',
+  outing: 'from-coral/80 to-accent/16',
+  coffee: 'from-coral/80 to-violet/60',
+  walk: 'from-accent/28 to-coral/68',
+  meet: 'from-violet/75 to-accent/16'
 };
 
 export function HomePage() {
@@ -74,12 +74,12 @@ export function HomePage() {
               >
                 <div className="relative h-44">
                   <img src={session.cover} alt={session.title} className="h-full w-full object-cover" />
-                  <div className={`absolute inset-0 bg-gradient-to-br ${intentColor[session.intent] ?? 'from-cyan/35 to-accent/15'}`} />
-                  <div className="absolute left-3 top-3 inline-flex items-center gap-1 rounded-full border border-white/15 bg-black/45 px-2 py-1 text-[11px] text-white">
+                  <div className={`absolute inset-0 bg-gradient-to-br ${intentColor[session.intent] ?? 'from-accent/28 to-violet/70'}`} />
+                  <div className="absolute left-3 top-3 inline-flex items-center gap-1 rounded-full border border-white/10 bg-[rgba(11,20,17,.62)] px-2 py-1 text-[11px] text-white backdrop-blur">
                     <span className="h-2 w-2 rounded-full bg-rose-500" />
                     {t('liveLabel')}
                   </div>
-                  <div className="absolute right-3 top-3 rounded-full border border-white/15 bg-black/45 px-2 py-1 text-[11px] text-white">
+                  <div className="absolute right-3 top-3 rounded-full border border-white/10 bg-[rgba(11,20,17,.62)] px-2 py-1 text-[11px] text-white backdrop-blur">
                     {intentLabel(session.intent)}
                   </div>
                 </div>

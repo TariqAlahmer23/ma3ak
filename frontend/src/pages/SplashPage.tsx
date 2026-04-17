@@ -89,22 +89,22 @@ export function SplashPage() {
 
   return (
     <div className="space-y-10 pb-8">
-      <section className="relative overflow-hidden rounded-[2rem] border border-line bg-[#0B1020] p-6 shadow-velvet md:p-10">
+      <section className="relative overflow-hidden rounded-[2rem] border border-line bg-[linear-gradient(145deg,rgba(17,28,23,.98),rgba(22,34,28,.96))] p-6 shadow-velvet md:p-10">
         <div className="pointer-events-none absolute inset-0 bg-mesh" />
-        <div className="pointer-events-none absolute -left-16 top-1/3 h-44 w-44 rounded-full bg-cyan/20 blur-3xl" />
-        <div className="pointer-events-none absolute -right-10 top-10 h-40 w-40 rounded-full bg-violet/25 blur-3xl" />
+        <div className="pointer-events-none absolute -left-16 top-1/3 h-44 w-44 rounded-full bg-cyan/18 blur-3xl" />
+        <div className="pointer-events-none absolute -right-10 top-10 h-40 w-40 rounded-full bg-violet/40 blur-3xl" />
 
         <div className="relative grid items-center gap-8 md:grid-cols-[1.1fr_0.9fr]">
           <motion.div initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }} className="space-y-5">
-            <p className="inline-flex rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs text-slate-300">
+            <p className="inline-flex rounded-full border border-line/70 bg-white/5 px-3 py-1 text-xs text-muted">
               {copy.pill}
             </p>
-            <h1 className="font-heading text-4xl leading-tight text-slate-50 md:text-6xl">
+            <h1 className="font-heading text-4xl leading-tight text-text md:text-6xl">
               {copy.title1}
               <br />
               {copy.title2}
             </h1>
-            <p className="max-w-xl text-sm leading-relaxed text-slate-300 md:text-base">
+            <p className="max-w-xl text-sm leading-relaxed text-muted md:text-base">
               {copy.body}
             </p>
 
@@ -117,7 +117,7 @@ export function SplashPage() {
               </button>
               <Link
                 to="/guest"
-                className="rounded-2xl border border-white/15 bg-white/5 px-5 py-3 text-sm font-semibold text-slate-100 transition hover:bg-white/10"
+                className="rounded-2xl border border-line/70 bg-white/5 px-5 py-3 text-sm font-semibold text-text transition hover:bg-white/10"
               >
                 {copy.guest}
               </Link>
@@ -125,21 +125,21 @@ export function SplashPage() {
           </motion.div>
 
           <motion.div initial={{ opacity: 0, y: 28 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="mx-auto w-full max-w-sm">
-            <div className="rounded-[2rem] border border-white/15 bg-[#111827]/70 p-3 backdrop-blur-xl">
-              <div className="overflow-hidden rounded-[1.5rem] border border-white/10 bg-[#161D2E] p-4">
+            <div className="rounded-[2rem] border border-line/70 bg-[rgba(17,28,23,.72)] p-3 backdrop-blur-xl">
+              <div className="overflow-hidden rounded-[1.5rem] border border-line/70 bg-[rgba(22,34,28,.96)] p-4">
                 <p className="text-xs uppercase tracking-[0.18em] text-cyan">Live intent cards</p>
                 <div className="mt-3 space-y-3">
-                  <div className="rounded-2xl border border-white/10 bg-white/5 p-3">
-                    <p className="text-sm font-semibold text-slate-50">Study Sprint 50m</p>
-                    <p className="mt-1 text-xs text-slate-300">Focused • 3/4 joined • Near you</p>
+                  <div className="rounded-2xl border border-line/70 bg-white/5 p-3">
+                    <p className="text-sm font-semibold text-text">Study Sprint 50m</p>
+                    <p className="mt-1 text-xs text-muted">Focused • 3/4 joined • Near you</p>
                   </div>
-                  <div className="rounded-2xl border border-white/10 bg-white/5 p-3">
-                    <p className="text-sm font-semibold text-slate-50">Builder Networking</p>
-                    <p className="mt-1 text-xs text-slate-300">Ambitious • Circle-only • Tonight</p>
+                  <div className="rounded-2xl border border-line/70 bg-white/5 p-3">
+                    <p className="text-sm font-semibold text-text">Builder Networking</p>
+                    <p className="mt-1 text-xs text-muted">Ambitious • Circle-only • Tonight</p>
                   </div>
-                  <div className="rounded-2xl border border-white/10 bg-gradient-to-r from-accent/20 to-violet/20 p-3">
-                    <p className="text-sm font-semibold text-slate-50">Coffee Signal 1:1</p>
-                    <p className="mt-1 text-xs text-slate-200">Mutual match unlocks chat</p>
+                  <div className="rounded-2xl border border-line/70 bg-gradient-to-r from-accent/12 to-violet/45 p-3">
+                    <p className="text-sm font-semibold text-text">Coffee Signal 1:1</p>
+                    <p className="mt-1 text-xs text-muted">Mutual match unlocks chat</p>
                   </div>
                 </div>
               </div>
@@ -181,18 +181,18 @@ export function SplashPage() {
 
       <section className="grid gap-4 md:grid-cols-2">
         <article className="premium-card rounded-3xl p-6">
-          <div className="inline-flex rounded-xl bg-cyan/15 p-2 text-cyan">
+          <div className="inline-flex rounded-xl bg-accent/15 p-2 text-cyan">
             <Lock size={18} />
           </div>
           <h2 className="mt-3 font-heading text-2xl text-text">{copy.trust}</h2>
           <p className="mt-2 text-sm text-muted">{copy.trustBody}</p>
         </article>
-        <article className="rounded-3xl border border-line bg-gradient-to-br from-surface to-accent/10 p-6">
+        <article className="rounded-3xl border border-line bg-gradient-to-br from-surface to-violet/80 p-6">
           <h2 className="font-heading text-2xl text-text">{copy.premium}</h2>
           <p className="mt-2 text-sm text-muted">{copy.premiumBody}</p>
           <button
             onClick={() => navigate('/premium')}
-            className="mt-4 rounded-2xl bg-gradient-to-r from-accent to-violet px-4 py-2 text-sm font-semibold text-white"
+            className="mt-4 rounded-2xl bg-gradient-to-r from-accent to-cyan px-4 py-2 text-sm font-semibold text-white shadow-glow"
           >
             {copy.businessCta}
           </button>

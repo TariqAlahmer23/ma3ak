@@ -18,11 +18,11 @@ export function NotificationItem({
     <button
       onClick={() => onClick(item.route, item.id)}
       className={`w-full rounded-2xl border p-4 text-left ${
-        item.read ? 'premium-card-soft border-white/10' : 'premium-card border-accent/50'
+        item.read ? 'premium-card-soft' : 'premium-card border-accent/25 shadow-glow'
       }`}
     >
       <div className="flex items-start gap-3">
-        <div className="rounded-xl bg-accent/10 p-2 text-accent">
+        <div className="rounded-xl border border-accent/20 bg-accent/10 p-2 text-accent">
           <BellRing size={15} />
         </div>
         <div className="flex-1">

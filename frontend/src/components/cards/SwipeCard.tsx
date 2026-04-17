@@ -14,10 +14,10 @@ export function SwipeCard({ session }: { session: Session }) {
   return (
     <motion.div
       layout
-      className="relative h-[52vh] w-full overflow-hidden rounded-[2rem] border border-white/15 bg-surface shadow-velvet md:h-[65vh]"
+      className="relative h-[52vh] w-full overflow-hidden rounded-[2rem] border border-line/70 bg-surface shadow-velvet md:h-[65vh]"
     >
       {!loaded ? (
-        <div className="absolute inset-0 animate-pulse bg-[radial-gradient(circle_at_20%_20%,rgba(59,130,246,.28),transparent_35%),radial-gradient(circle_at_80%_80%,rgba(34,211,238,.16),transparent_30%),#0b1020]" />
+        <div className="absolute inset-0 animate-pulse bg-[radial-gradient(circle_at_20%_20%,rgba(29,191,115,.22),transparent_35%),radial-gradient(circle_at_80%_80%,rgba(52,211,153,.12),transparent_30%),#0b1411]" />
       ) : null}
 
       <img

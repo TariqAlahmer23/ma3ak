@@ -1,10 +1,10 @@
-﻿export const intentColorMap = {
-  study: 'from-sky-500/30 to-blue-500/10',
-  work: 'from-cyan-500/30 to-slate-500/10',
-  project: 'from-indigo-500/30 to-cyan-500/10',
-  networking: 'from-fuchsia-500/25 to-pink-500/10',
-  outing: 'from-amber-500/30 to-orange-500/10',
-  coffee: 'from-rose-500/30 to-pink-500/10',
-  walk: 'from-emerald-500/30 to-lime-500/10',
-  meet: 'from-violet-500/30 to-sky-500/10'
+export const intentColorMap = {
+  study: 'from-accent/26 to-violet/60',
+  work: 'from-cyan/24 to-violet/55',
+  project: 'from-accent/22 to-coral/70',
+  networking: 'from-cyan/24 to-accent/12',
+  outing: 'from-coral/75 to-accent/14',
+  coffee: 'from-coral/80 to-violet/55',
+  walk: 'from-accent/28 to-coral/60',
+  meet: 'from-violet/70 to-accent/14'
 } as const;

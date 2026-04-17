@@ -22,7 +22,7 @@ export type AuthGateIntent = {
 
 type AppState = {
   locale: 'en' | 'ar';
-  theme: 'light' | 'dark';
+  theme: 'dark';
   isGuest: boolean;
   me: User | null;
   onboarding: OnboardingProfile;
@@ -37,7 +37,7 @@ type AppState = {
   authGate: AuthGateIntent | null;
   match: MatchResult | null;
   filters: FilterState;
-  setTheme: (theme: 'light' | 'dark') => void;
+  setTheme: (theme: 'dark') => void;
   setLocale: (locale: 'en' | 'ar') => void;
   openAuthGate: (intent: AuthGateIntent) => void;
   closeAuthGate: () => void;
@@ -62,14 +62,13 @@ const defaultOnboarding: OnboardingProfile = {
   privacyComfort: 'approval'
 };
 
-const savedTheme = (localStorage.getItem('ma3ak_theme') as 'light' | 'dark' | null) ?? 'dark';
 const savedLocale = (localStorage.getItem('ma3ak_locale') as 'en' | 'ar' | null) ?? 'en';
 
 export const useAppStore = create<AppState>()(
   persist(
     (set, get) => ({
       locale: savedLocale,
-      theme: savedTheme,
+      theme: 'dark',
       isGuest: true,
       me: null,
       onboarding: defaultOnboarding,
@@ -85,7 +84,7 @@ export const useAppStore = create<AppState>()(
       match: null,
       filters: { intents: [], vibes: [], timeSlot: 'today' },
       premiumPlans,
-      setTheme: (theme) => set({ theme }),
+      setTheme: () => set({ theme: 'dark' }),
       setLocale: (locale) => set({ locale }),
       openAuthGate: (authGate) => set({ authGate }),
       closeAuthGate: () => set({ authGate: null }),

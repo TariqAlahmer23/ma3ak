@@ -1,15 +1,14 @@
-﻿import { useEffect } from 'react';
-import { useAppStore } from '@/store/useAppStore';
+import { useEffect } from 'react';
 
-export function usePersistedTheme(): 'light' | 'dark' {
-  const theme = useAppStore((s) => s.theme);
+export function usePersistedTheme(): 'dark' {
+  const theme = 'dark';
 
   useEffect(() => {
-    document.documentElement.classList.toggle('dark', theme === 'dark');
+    document.documentElement.classList.add('dark');
     document.documentElement.style.colorScheme = theme;
     const meta = document.querySelector('meta[name="theme-color"]');
     if (meta) {
-      meta.setAttribute('content', theme === 'dark' ? '#0b1020' : '#f5f7fb');
+      meta.setAttribute('content', '#0B1411');
     }
     localStorage.setItem('ma3ak_theme', theme);
   }, [theme]);

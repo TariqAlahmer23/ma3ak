@@ -1,6 +1,6 @@
 ﻿import { AnimatePresence, motion } from 'framer-motion';
-import { MapPin, Radio, Search, Users, Zap } from 'lucide-react';
-import mapboxgl, { type LngLatLike, type Map as MapboxMap, type Marker } from 'mapbox-gl';
+import { Bell, MapPin, Radio, Search, UserCircle2, Users, Zap } from 'lucide-react';
+import mapboxgl, { type LngLatLike, type Map as MapboxMap, type MapMouseEvent, type Marker } from 'mapbox-gl';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
@@ -112,7 +112,6 @@ export function MapPage() {
   const navigate = useNavigate();
   const { requireAuth } = useAuthGate();
   const me = useAppStore((s) => s.me);
-  const theme = useAppStore((s) => s.theme);
 
   const mapContainerRef = useRef<HTMLDivElement | null>(null);
   const mapRef = useRef<MapboxMap | null>(null);
@@ -129,6 +128,7 @@ export function MapPage() {
   const [activity, setActivity] = useState('');
   const [intent, setIntent] = useState<Intent>('study');
   const [mood, setMood] = useState<Vibe>('focused');
+  const [activeIntent, setActiveIntent] = useState<Intent | 'all'>('all');
 
   const canPublish = !!pickedPoint && activity.trim().length > 3;
 
@@ -141,9 +141,7 @@ export function MapPage() {
   const token = import.meta.env.VITE_MAPBOX_ACCESS_TOKEN as string | undefined;
   const mapStyle =
     (import.meta.env.VITE_MAPBOX_STYLE_URL as string | undefined) ||
-    (theme === 'dark'
-      ? 'mapbox://styles/mapbox/navigation-night-v1'
-      : 'mapbox://styles/mapbox/light-v11');
+    'mapbox://styles/mapbox/navigation-night-v1';
 
   const buildClusters = useCallback((map: MapboxMap, items: LiveMapEntity[]): Cluster[] => {
     const zoom = map.getZoom();
@@ -188,6 +186,11 @@ export function MapPage() {
     return clusters;
   }, []);
 
+  const filteredEntities = useMemo(
+    () => (activeIntent === 'all' ? entities : entities.filter((entity) => entity.intent === activeIntent)),
+    [activeIntent, entities]
+  );
+
   const updateMarkers = useCallback(() => {
     const map = mapRef.current;
     if (!map) return;
@@ -195,7 +198,7 @@ export function MapPage() {
     markersRef.current.forEach((marker) => marker.remove());
     markersRef.current.clear();
 
-    const clusters = buildClusters(map, entities);
+    const clusters = buildClusters(map, filteredEntities);
 
     clusters.forEach((cluster) => {
       const el = createMarkerElement(cluster);
@@ -236,7 +239,7 @@ export function MapPage() {
 
       markersRef.current.set(cluster.id, marker);
     });
-  }, [buildClusters, entities]);
+  }, [buildClusters, filteredEntities, t]);
 
   useEffect(() => {
     if (!token || !mapContainerRef.current || mapRef.current) return;
@@ -274,7 +277,7 @@ export function MapPage() {
       if (message) console.error('Mapbox error:', message);
     };
 
-    const handleMapClick = (event: mapboxgl.MapMouseEvent) => {
+    const handleMapClick = (event: MapMouseEvent) => {
       if (!pickModeRef.current) return;
       setPickedPoint({
         lng: event.lngLat.lng,
@@ -342,9 +345,9 @@ export function MapPage() {
 
   useEffect(() => {
     updateMarkers();
-  }, [entities, updateMarkers]);
+  }, [filteredEntities, updateMarkers]);
 
-  const mapStatus = useMemo(() => t('livePointsAround', { count: entities.length }), [entities.length, t]);
+  const mapStatus = useMemo(() => t('livePointsAround', { count: filteredEntities.length }), [filteredEntities.length, t]);
 
   const publishCheckIn = () => {
     if (!canPublish || !pickedPoint) return;
@@ -382,9 +385,41 @@ export function MapPage() {
   };
 
   return (
-    <div className="relative h-full w-full overflow-hidden">
-      <section className="relative h-full w-full overflow-hidden">
-        <div ref={mapContainerRef} className="h-full w-full" />
+    <div className="relative h-[100dvh] w-full overflow-hidden bg-bg">
+      <div ref={mapContainerRef} className="absolute inset-0" />
+
+      <section className="pointer-events-none absolute inset-0 overflow-hidden">
+        <div className="absolute inset-x-4 top-4 z-30 flex items-center gap-3 md:hidden">
+          <button
+            onClick={() => navigate('/profile/you')}
+            className="pointer-events-auto order-3 inline-flex h-12 w-12 shrink-0 items-center justify-center rounded-full border border-white/12 bg-[rgba(9,17,14,.72)] text-text shadow-[0_12px_30px_rgba(0,0,0,.25)] backdrop-blur-[18px] transition hover:border-white/20"
+            aria-label={t('profile')}
+          >
+            {me?.avatar ? (
+              <img src={me.avatar} alt={me.name ?? t('profile')} className="h-10 w-10 rounded-full object-cover" />
+            ) : (
+              <UserCircle2 size={22} />
+            )}
+          </button>
+
+          <div className="pointer-events-auto order-2 min-w-0 flex-1">
+            <div className="rounded-[1.35rem] border border-white/12 bg-[rgba(16,25,21,.66)] px-4 py-3 shadow-[0_14px_30px_rgba(0,0,0,.22)] backdrop-blur-[24px]">
+              <div className="flex items-center gap-2 text-sm font-medium text-text">
+                <Search size={15} className="text-cyan" />
+                <span className="truncate">{pickMode ? t('tapToCheckIn') : t('peopleLiveAround')}</span>
+              </div>
+            </div>
+          </div>
+
+          <button
+            onClick={() => navigate('/notifications')}
+            className="pointer-events-auto order-1 inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-full border border-white/12 bg-[rgba(9,17,14,.72)] text-text shadow-[0_12px_28px_rgba(0,0,0,.22)] backdrop-blur-[18px] transition hover:border-white/20"
+            aria-label="Notifications"
+          >
+            <Bell size={16} />
+          </button>
+        </div>
+
         {!token ? (
           <div className="absolute inset-0 z-30 flex items-center justify-center bg-bg/88 p-6 text-center">
             <div className="max-w-md space-y-2">
@@ -396,25 +431,48 @@ export function MapPage() {
           </div>
         ) : null}
         {token && mapError ? (
-          <div className="absolute inset-x-4 top-48 z-30 mx-auto max-w-lg rounded-2xl border border-amber-400/30 bg-[#0b1020]/90 p-4 text-sm text-white shadow-2xl backdrop-blur-xl md:top-28">
-            <p className="text-xs uppercase tracking-[0.16em] text-amber-300">{t('mapLoadFailed')}</p>
-            <p className="mt-2 text-white/90">{t('mapLoadHelp')}</p>
-            <p className="mt-2 break-words rounded-xl bg-white/5 px-3 py-2 font-mono text-xs text-amber-100">{mapError}</p>
+          <div className="pointer-events-auto absolute inset-x-4 top-[8.5rem] z-30 mx-auto max-w-lg rounded-2xl border border-line/70 bg-[rgba(17,28,23,.92)] p-4 text-sm text-text shadow-2xl backdrop-blur-xl md:top-28">
+            <p className="text-xs uppercase tracking-[0.16em] text-cyan">{t('mapLoadFailed')}</p>
+            <p className="mt-2 text-muted">{t('mapLoadHelp')}</p>
+            <p className="mt-2 break-words rounded-xl bg-white/5 px-3 py-2 font-mono text-xs text-text/90">{mapError}</p>
           </div>
         ) : null}
 
-        <div className="pointer-events-none absolute left-4 top-24 z-20 inline-flex items-center gap-2 rounded-full border border-line/60 bg-surface/80 px-3 py-1 text-xs text-text backdrop-blur dark:border-white/15 dark:bg-black/35 md:top-24">
-          <Radio size={13} className="text-rose-400" />
-          {mapStatus}
-        </div>
-
-        <div className="absolute left-4 right-4 top-36 z-20 md:left-6 md:right-6 md:top-24 md:mx-auto md:max-w-sm">
-          <div className="rounded-2xl border border-line/60 bg-surface/85 px-3 py-2 backdrop-blur-xl dark:border-white/10 dark:bg-[#111827]/82">
-            <div className="flex items-center gap-2 text-sm text-text">
+        <div className="pointer-events-auto absolute left-4 right-4 top-[4.8rem] z-20 hidden md:left-6 md:right-6 md:top-24 md:block md:mx-auto md:max-w-sm">
+          <div className="rounded-[1.45rem] border border-white/12 bg-[rgba(16,25,21,.68)] px-4 py-3 shadow-[0_16px_34px_rgba(0,0,0,.24)] backdrop-blur-[24px]">
+            <div className="flex items-center gap-2 text-sm font-medium text-text">
               <Search size={15} className="text-cyan" />
               <span>{pickMode ? t('tapToCheckIn') : t('peopleLiveAround')}</span>
             </div>
           </div>
+        </div>
+
+        <div className="pointer-events-auto absolute inset-x-4 top-[4.85rem] z-20 md:hidden">
+          <div className="scrollbar-none flex gap-2 overflow-x-auto pb-1">
+            {(['all', ...intents] as Array<Intent | 'all'>).map((chip) => {
+              const active = activeIntent === chip;
+              const label = chip === 'all' ? t('map') : intentLabel(chip);
+
+              return (
+                <button
+                  key={chip}
+                  onClick={() => setActiveIntent(chip)}
+                  className={`shrink-0 rounded-full border px-3.5 py-2 text-xs font-medium transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/40 ${
+                    active
+                      ? 'border-accent/40 bg-accent-soft text-text shadow-[0_10px_24px_rgba(29,191,115,.14)]'
+                      : 'border-white/12 bg-[rgba(11,20,17,.68)] text-text/76 backdrop-blur-[16px]'
+                  }`}
+                >
+                  {label}
+                </button>
+              );
+            })}
+          </div>
+        </div>
+
+        <div className="pointer-events-none absolute left-4 top-[7.95rem] z-20 inline-flex items-center gap-2 rounded-full border border-white/12 bg-[rgba(11,20,17,.78)] px-3.5 py-1.5 text-xs font-medium text-text shadow-[0_10px_24px_rgba(0,0,0,.2)] backdrop-blur-[16px] md:top-36">
+          <Radio size={13} className="text-rose-400" />
+          {mapStatus}
         </div>
 
         <AnimatePresence>
@@ -425,7 +483,7 @@ export function MapPage() {
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
                 onClick={() => setSelectedCard(null)}
-                className="absolute inset-0 z-20 bg-black/28"
+                className="pointer-events-auto absolute inset-0 z-20 bg-black/28"
                 aria-label={t('closeDetails')}
               />
 
@@ -434,14 +492,14 @@ export function MapPage() {
                 animate={{ y: 0, opacity: 1 }}
                 exit={{ y: 80, opacity: 0 }}
                 transition={{ type: 'spring', stiffness: 280, damping: 26 }}
-                className="absolute inset-x-3 bottom-3 z-30 rounded-2xl border border-line/60 bg-surface/92 p-4 backdrop-blur-xl dark:border-white/10 dark:bg-[#111827]/92"
+                className="pointer-events-auto absolute inset-x-4 bottom-[calc(6rem+env(safe-area-inset-bottom))] z-30 rounded-[1.8rem] border border-white/12 bg-[rgba(14,22,19,.82)] p-4 shadow-[0_24px_50px_rgba(0,0,0,.34)] backdrop-blur-[24px] md:bottom-4 md:mx-auto md:max-w-md"
               >
                 <div className="flex items-start justify-between gap-3">
                   <div>
                     <p className="text-xs uppercase tracking-[0.14em] text-cyan">{intentLabel(selectedCard.intent)}</p>
                     <h2 className="font-heading text-lg text-text">{selectedCard.title}</h2>
                   </div>
-                  <span className="rounded-full border border-line/60 bg-bg/40 px-2 py-1 text-xs text-text dark:border-white/15 dark:bg-white/5">
+                  <span className="rounded-full border border-line/60 bg-bg/50 px-2 py-1 text-xs text-text">
                     {t('liveLabel')}
                   </span>
                 </div>
@@ -472,13 +530,13 @@ export function MapPage() {
         </AnimatePresence>
       </section>
 
-      <div className="fixed bottom-24 right-3 z-40 md:bottom-8 md:right-8">
+      <div className="pointer-events-auto absolute bottom-[calc(7.4rem+env(safe-area-inset-bottom))] right-4 z-40 md:bottom-8 md:right-8">
         <button
           onClick={() => {
             if (!requireAuth('create', undefined, '/home')) return;
             setCheckInOpen(true);
           }}
-          className="group inline-flex items-center gap-2 rounded-full border border-line/60 bg-surface/90 px-4 py-3 text-sm font-semibold text-text shadow-glow backdrop-blur-xl transition hover:-translate-y-0.5 hover:border-cyan/60 dark:border-white/15 dark:bg-[#111827]/90 dark:text-white"
+          className="group inline-flex items-center gap-2 rounded-full border border-white/12 bg-[rgba(14,22,19,.8)] px-4 py-3 text-sm font-semibold text-text shadow-[0_18px_36px_rgba(0,0,0,.32)] backdrop-blur-[22px] transition hover:-translate-y-0.5 hover:border-cyan/50"
         >
           <span className="relative inline-flex h-6 w-6 items-center justify-center rounded-full bg-gradient-to-br from-cyan to-accent text-white">
             <Zap size={13} />
@@ -505,7 +563,7 @@ export function MapPage() {
               animate={{ y: 0 }}
               exit={{ y: '100%' }}
               transition={{ type: 'spring', damping: 24, stiffness: 260 }}
-              className="fixed inset-x-0 bottom-0 z-50 rounded-t-3xl border border-line/60 bg-surface p-5 text-text shadow-2xl dark:border-white/10 dark:bg-[#111827] dark:text-slate-100"
+              className="fixed inset-x-0 bottom-0 z-50 rounded-t-3xl border border-line/60 bg-surface p-5 text-text shadow-2xl"
             >
               <div className="mx-auto mb-4 h-1.5 w-14 rounded-full bg-slate-500/50" />
               <h3 className="font-heading text-xl">{t('checkInNow')}</h3>
